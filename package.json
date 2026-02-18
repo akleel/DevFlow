@@ -1,0 +1,31 @@
+{
+  "name": "devflow",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w apps/web",
+    "dev:api": "npm run dev -w apps/api",
+    "lint": "eslint .",
+    "format": "prettier . --write"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/better-sqlite3": "^7.6.13",
+    "eslint": "^4.1.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.14.0"
+  },
+  "dependencies": {
+    "eslint-config-next": "0.2.4",
+    "fastify": "5.7.4"
+  }
+}
