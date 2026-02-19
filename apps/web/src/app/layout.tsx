@@ -7,7 +7,7 @@ import { Footer } from '../components/layout/Footer';
 import { Header } from '../components/layout/Header';
 
 export const metadata: Metadata = {
-  title: 'Dewflow',
+  title: 'DevFlow',
   description:
     'Web consulting: websites, extreme problem solving, and reusable components.',
 };
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className="min-h-screen bg-white text-gray-900">
+      <body className="min-h-screen bg-white text-gray-900 antialiased">
         <Header />
         {children}
         <Footer />

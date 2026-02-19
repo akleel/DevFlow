@@ -4,14 +4,14 @@
   "private": true,
   "license": "ISC",
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev:web": "npm run dev -w apps/web",
     "dev:api": "npm run dev -w apps/api",
     "lint": "npm run lint -w apps/web && npm run lint -w apps/api && npm run lint -w packages/shared",
+    "typecheck": "npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared",
+    "test": "npm run test -w apps/api",
+    "build": "npm run build -w packages/shared && npm run build -w apps/api && npm run build -w apps/web",
     "format": "prettier . --write"
   },
   "devDependencies": {

@@ -12,7 +12,7 @@ export function Footer() {
           <a className="text-gray-700 hover:text-black" href="#services">
             Services
           </a>
-          <a className="text-gray-700 hover:text-black" href="#engineering">
+          <a className="text-gray-700 hover:text-black" href="/engineering">
             Engineering
           </a>
           <a className="text-gray-700 hover:text-black" href="#contact">

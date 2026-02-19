@@ -11,8 +11,8 @@ function Card({
   bullets: string[];
 }) {
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
-      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
+      <h3 className="text-lg font-semibold tracking-tight text-gray-900">{title}</h3>
       <p className="mt-2 text-sm text-gray-600">{body}</p>
       <ul className="mt-4 space-y-2 text-sm text-gray-700">
         {bullets.map((b) => (
@@ -26,21 +26,13 @@ function Card({
   );
 }
 
-function Step({
-  n,
-  title,
-  body,
-}: {
-  n: string;
-  title: string;
-  body: string;
-}) {
+function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="rounded-xl border p-6">
+    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
       <div className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
         Step {n}
       </div>
-      <div className="mt-2 text-base font-semibold">{title}</div>
+      <div className="mt-2 text-base font-semibold text-gray-900">{title}</div>
       <p className="mt-2 text-sm text-gray-600">{body}</p>
     </div>
   );
@@ -48,8 +40,8 @@ function Step({
 
 function QA({ q, a }: { q: string; a: string }) {
   return (
-    <div className="rounded-xl border p-6">
-      <div className="text-base font-semibold">{q}</div>
+    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
+      <div className="text-base font-semibold text-gray-900">{q}</div>
       <p className="mt-2 text-sm text-gray-600">{a}</p>
     </div>
   );

@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --import tsx test/api.test.ts",
     "start": "node dist/main.js",
     "lint": "eslint src",
     "db:generate": "drizzle-kit generate",

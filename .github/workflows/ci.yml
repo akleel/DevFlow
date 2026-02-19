@@ -30,11 +30,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build shared
-        run: npm run build -w packages/shared
+      - name: Typecheck
+        run: npm run typecheck
 
-      - name: Build API
-        run: npm run build -w apps/api
+      - name: Tests
+        run: npm run test
 
-      - name: Build web
-        run: npm run build -w apps/web
+      - name: Build
+        run: npm run build

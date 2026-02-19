@@ -22,11 +22,13 @@ export function Section({ id, eyebrow, title, subtitle, children, className }: P
                 {eyebrow}
               </div>
             )}
+
             {title && (
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
                 {title}
               </h2>
             )}
+
             {subtitle && <p className="mt-3 max-w-2xl text-gray-600">{subtitle}</p>}
           </header>
         )}
