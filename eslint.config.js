@@ -1,18 +1,20 @@
-﻿import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import importPlugin from 'eslint-plugin-import';
-import prettier from 'eslint-config-prettier';
+﻿import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import importPlugin from "eslint-plugin-import";
+import prettier from "eslint-config-prettier";
 
 export default [
   {
     ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/coverage/**',
-      'packages/config/**',
-      'eslint.config.*',
-      '.prettierrc.*',
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/coverage/**",
+      "**/.turbo/**",
+      "packages/config/**",
+      "eslint.config.*",
+      ".prettierrc.*",
+      "package-lock.json",
     ],
   },
 
@@ -23,11 +25,11 @@ export default [
   {
     plugins: { import: importPlugin },
     rules: {
-      'import/order': [
-        'warn',
+      "import/order": [
+        "warn",
         {
-          'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
+          "newlines-between": "always",
+          alphabetize: { order: "asc", caseInsensitive: true },
         },
       ],
     },

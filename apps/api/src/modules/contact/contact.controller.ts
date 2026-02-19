@@ -1,3 +1,7 @@
+import type {
+  ContactErrorResponse,
+  ContactSuccessResponse,
+} from "@devflow/shared";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { ContactRequestSchema } from "./contact.schema";
@@ -12,19 +16,27 @@ export async function submitContactController(
   const parsed = ContactRequestSchema.safeParse(req.body);
 
   if (!parsed.success) {
-    return reply.status(400).send({
+    const body: ContactErrorResponse = {
       ok: false,
       error: "Invalid request",
       requestId: req.requestId,
-      issues: parsed.error.issues,
-    });
+      issues: parsed.error.issues.map((issue) => ({
+        path: issue.path,
+        message: issue.message,
+      })),
+    };
+
+    return reply.status(400).send(body);
   }
 
   // Honeypot: if filled, pretend success (don't teach bots)
   if (parsed.data.company?.trim()) {
     req.log.info({ requestId: req.requestId }, "honeypot triggered");
-    return reply.status(200).send({ ok: true });
+
+    const body: ContactSuccessResponse = { ok: true };
+    return reply.status(200).send(body);
   }
+
   const email = parsed.data.email.toLowerCase().trim();
   const domain = email.split("@")[1] ?? "unknown";
 

@@ -7,7 +7,7 @@ declare module "fastify" {
 }
 
 export function registerRequestId(app: FastifyInstance) {
-  // Use Fastify's built-in request id (matches logger's reqId)
+  // Use Fastify's built-in request id (matches the logger's reqId)
   app.addHook("onRequest", async (req: FastifyRequest) => {
     req.requestId = req.id;
   });
@@ -15,7 +15,7 @@ export function registerRequestId(app: FastifyInstance) {
   // Guarantee the header on every response
   app.addHook(
     "onSend",
-    async (req: FastifyRequest, reply: FastifyReply, payload) => {
+    async (req: FastifyRequest, reply: FastifyReply, payload: unknown) => {
       reply.header("x-request-id", req.requestId);
       return payload;
     },

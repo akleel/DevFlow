@@ -1,11 +1,10 @@
+import type { AdminContactsSuccessResponse } from "@devflow/shared";
 import { desc } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
-
 
 import { db } from "../../db/client";
 import { contacts } from "../../db/schema";
 import { requireAdmin } from "../../middleware/admin-auth";
-
 
 type AdminContactsQuery = {
   limit?: string;
@@ -30,7 +29,8 @@ export async function adminRoutes(app: FastifyInstance) {
         .orderBy(desc(contacts.createdAt))
         .limit(limit);
 
-      return reply.send({ ok: true, items });
+      const body: AdminContactsSuccessResponse = { ok: true, items };
+      return reply.send(body);
     },
   );
 }

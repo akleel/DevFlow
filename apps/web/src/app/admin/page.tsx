@@ -1,21 +1,51 @@
 "use client";
 
+import type { AdminContactItem, AdminContactsResponse } from "@devflow/shared";
 import { useEffect, useState } from "react";
 
-type AdminContactItem = {
-  id?: string;
-  createdAt?: string;
-  name?: string;
-  email?: string;
-  message?: string;
-};
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
 
-type AdminContactsResponse =
-  | { ok: true; items: AdminContactItem[] }
-  | { ok: false; error: string; requestId?: string };
+function isAdminContactItem(value: unknown): value is AdminContactItem {
+  if (!isRecord(value)) return false;
 
-function formatDate(iso?: string) {
-  if (!iso) return "";
+  return (
+    typeof value.id === "string" &&
+    typeof value.createdAt === "string" &&
+    typeof value.name === "string" &&
+    typeof value.email === "string" &&
+    typeof value.message === "string"
+  );
+}
+
+function parseAdminContactsResponse(value: unknown): AdminContactsResponse {
+  if (!isRecord(value)) {
+    return { ok: false, error: "Invalid response" };
+  }
+
+  if (value.ok === true) {
+    const itemsRaw = value.items;
+    const items = Array.isArray(itemsRaw)
+      ? itemsRaw.filter(isAdminContactItem)
+      : [];
+
+    return { ok: true, items };
+  }
+
+  if (value.ok === false) {
+    const error =
+      typeof value.error === "string" ? value.error : "Request failed";
+    const requestId =
+      typeof value.requestId === "string" ? value.requestId : undefined;
+
+    return { ok: false, error, requestId };
+  }
+
+  return { ok: false, error: "Invalid response" };
+}
+
+function formatDate(iso: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleString();
@@ -37,7 +67,7 @@ export default function AdminPage() {
     setError("");
 
     try {
-      const res = await fetch(`/api/admin/contacts?limit=50`, {
+      const res = await fetch("/api/admin/contacts?limit=50", {
         headers: {
           Accept: "application/json",
           "x-admin-gate": gate,
@@ -45,22 +75,24 @@ export default function AdminPage() {
         cache: "no-store",
       });
 
-      const data = (await res
-        .json()
-        .catch(() => ({}))) as AdminContactsResponse;
+      const raw = (await res.json().catch(() => ({}))) as unknown;
+      const data = parseAdminContactsResponse(raw);
 
-      if (!res.ok || (data as any)?.ok === false) {
+      if (!res.ok || data.ok === false) {
         const msg =
-          (data as any)?.error ??
-          `Request failed (${res.status} ${res.statusText})`;
+          data.ok === false
+            ? data.error
+            : `Request failed (${res.status} ${res.statusText})`;
 
         const reqId =
-          (data as any)?.requestId ?? res.headers.get("x-request-id");
+          (data.ok === false ? data.requestId : undefined) ??
+          res.headers.get("x-request-id") ??
+          undefined;
 
         throw new Error(reqId ? `${msg} (requestId: ${reqId})` : msg);
       }
 
-      setItems((data as { ok: true; items: AdminContactItem[] }).items ?? []);
+      setItems(data.items);
       setStatus("idle");
     } catch (err) {
       setStatus("error");
@@ -131,15 +163,12 @@ export default function AdminPage() {
         ) : (
           <ul className="space-y-3">
             {items.map((item) => (
-              <li
-                key={item.id ?? item.createdAt ?? Math.random()}
-                className="rounded-md border p-4 space-y-2"
-              >
+              <li key={item.id} className="rounded-md border p-4 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="font-medium">
-                    {item.name ?? "Unknown"}{" "}
+                    {item.name}{" "}
                     <span className="text-gray-600 font-normal">
-                      ({item.email ?? "no email"})
+                      ({item.email})
                     </span>
                   </div>
                   <div className="text-sm text-gray-600">
@@ -147,9 +176,7 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {item.message && (
-                  <p className="text-sm whitespace-pre-wrap">{item.message}</p>
-                )}
+                <p className="text-sm whitespace-pre-wrap">{item.message}</p>
               </li>
             ))}
           </ul>

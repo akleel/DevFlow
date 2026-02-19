@@ -1,15 +1,15 @@
-﻿import type { FastifyInstance } from "fastify";
+﻿import type { FastifyInstance } from 'fastify';
 
-import { submitContactController } from "./contact.controller";
+import { submitContactController } from './contact.controller';
 
 export async function contactRoutes(app: FastifyInstance) {
   app.post(
-    "/contact",
+    '/contact',
     {
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: "10 minutes",
+          timeWindow: '10 minutes',
         },
       },
     },

@@ -1,8 +1,28 @@
 "use client";
 
+import type { ContactRequest } from "@devflow/shared";
 import { useEffect, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "success" | "error";
+
+type ErrorPayload = {
+  error?: string;
+  requestId?: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readErrorPayload(value: unknown): ErrorPayload {
+  if (!isRecord(value)) return {};
+
+  const error = typeof value.error === "string" ? value.error : undefined;
+  const requestId =
+    typeof value.requestId === "string" ? value.requestId : undefined;
+
+  return { error, requestId };
+}
 
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -38,7 +58,8 @@ export function ContactForm() {
     }
 
     const form = new FormData(e.currentTarget);
-    const payload = {
+
+    const payload: ContactRequest = {
       name: String(form.get("name") ?? ""),
       email: String(form.get("email") ?? ""),
       message: String(form.get("message") ?? ""),
@@ -46,19 +67,17 @@ export function ContactForm() {
     };
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/contact`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(payload),
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
-      const data = await res.json().catch(() => ({}));
+      const raw = (await res.json().catch(() => ({}))) as unknown;
+      const errPayload = readErrorPayload(raw);
 
       if (!res.ok) {
         if (res.status === 429) {
@@ -89,7 +108,13 @@ export function ContactForm() {
           throw new Error(msg);
         }
 
-        throw new Error(data?.error ?? "Request failed");
+        const requestId =
+          errPayload.requestId ?? res.headers.get("x-request-id") ?? undefined;
+
+        const msg =
+          errPayload.error ??
+          `Request failed (${res.status} ${res.statusText})`;
+        throw new Error(requestId ? `${msg} (requestId: ${requestId})` : msg);
       }
 
       setStatus("success");
