@@ -1,4 +1,4 @@
-﻿import type { FastifyInstance } from "fastify";
+import type { FastifyInstance } from "fastify";
 
 import { adminRoutes } from "../modules/admin/admin.route";
 import { contactRoutes } from "../modules/contact/contact.route";
