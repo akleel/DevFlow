@@ -1,51 +1,21 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
-
 import { env } from '../config/env';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // apps/api/src/db -> apps/api
 const apiRoot = path.resolve(__dirname, '../..');
-
 // DATABASE_URL example: file:./storage/devflow.db
-function resolveSqliteFile(databaseUrl: string) {
+function resolveSqliteFile(databaseUrl) {
   if (!databaseUrl.startsWith('file:')) {
     throw new Error('DATABASE_URL must start with file: for SQLite');
   }
-
   const p = databaseUrl.replace('file:', '');
   // relative paths resolve from apps/api
   return path.isAbsolute(p) ? p : path.join(apiRoot, p);
 }
-
 const sqliteFile = resolveSqliteFile(env.DATABASE_URL);
-
-// Make sure the parent directory exists (important in production deploys)
-fs.mkdirSync(path.dirname(sqliteFile), { recursive: true });
-
 const sqlite = new Database(sqliteFile);
-
-// Pragmas for sanity + durability + concurrency.
-// Notes:
-// - WAL dramatically improves concurrency for SQLite.
-// - NORMAL is a common durability/perf balance for web apps.
-// - busy_timeout helps when multiple requests touch the DB at the same time.
-sqlite.pragma('journal_mode = WAL');
-sqlite.pragma('synchronous = NORMAL');
-sqlite.pragma('foreign_keys = ON');
-sqlite.pragma('busy_timeout = 5000');
-
 export const db = drizzle(sqlite);
-
-let isClosed = false;
-
-export function closeDb() {
-  if (isClosed) return;
-  isClosed = true;
-  sqlite.close();
-}

@@ -17,6 +17,13 @@ function safeLimit(value: string | null) {
 }
 
 export async function GET(req: Request) {
+  const enabled = process.env.ENABLE_ADMIN === 'true';
+
+  // Hide the endpoint entirely unless explicitly enabled.
+  if (!enabled) {
+    return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
+  }
+
   const apiUrl = process.env.API_URL;
   const adminToken = process.env.ADMIN_TOKEN;
   const gate = process.env.ADMIN_GATE;

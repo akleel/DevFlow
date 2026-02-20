@@ -18,11 +18,9 @@ export function registerErrorHandler(app: FastifyInstance) {
         'request error',
       );
 
-      const statusCode =
-        err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
+      const statusCode = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
 
-      const safeMessage =
-        statusCode >= 500 ? 'Internal server error' : err.message;
+      const safeMessage = statusCode >= 500 ? 'Internal server error' : err.message;
 
       return reply.status(statusCode).send({
         ok: false,

@@ -52,6 +52,22 @@ function formatDate(iso: string) {
 }
 
 export default function AdminPage() {
+  const enabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === "true";
+
+  if (!enabled) {
+    return (
+      <main className="p-8 space-y-4">
+        <h1 className="text-2xl font-bold">Admin</h1>
+        <div className="rounded-md border p-4">
+          <p className="text-sm">
+            Admin is disabled. Set <code>NEXT_PUBLIC_ENABLE_ADMIN=true</code> (and{" "}
+            <code>ENABLE_ADMIN=true</code> for the server proxy) to enable it locally.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   const [gate, setGate] = useState<string>("");
   const [items, setItems] = useState<AdminContactItem[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
