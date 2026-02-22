@@ -4,6 +4,7 @@ import test from 'node:test';
 process.env.WEB_ORIGIN = 'http://localhost:3000';
 process.env.ADMIN_TOKEN = 'test-admin-token';
 process.env.DATABASE_URL = 'file:./storage/test.db';
+process.env.ENABLE_ADMIN = 'true';
 
 const { buildApp } = await import('../src/app');
 
