@@ -47,6 +47,8 @@ export function ContactForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (status === 'sending') return;
+
     setStatus('sending');
     setError('');
 
@@ -56,7 +58,8 @@ export function ContactForm() {
       resetTimerRef.current = null;
     }
 
-    const form = new FormData(e.currentTarget);
+    const formElement = e.currentTarget;
+    const form = new FormData(formElement);
 
     const payload: ContactRequest = {
       name: String(form.get('name') ?? ''),
@@ -116,7 +119,7 @@ export function ContactForm() {
       }
 
       setStatus('success');
-      (e.target as HTMLFormElement).reset();
+      formElement.reset();
 
       resetTimerRef.current = window.setTimeout(() => {
         setStatus('idle');
@@ -134,8 +137,11 @@ export function ContactForm() {
       <input name="company" tabIndex={-1} autoComplete="off" className="hidden" />
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Name</label>
+        <label htmlFor="contact-name" className="block text-sm font-medium">
+          Name
+        </label>
         <input
+          id="contact-name"
           name="name"
           required
           minLength={2}
@@ -146,8 +152,11 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Email</label>
+        <label htmlFor="contact-email" className="block text-sm font-medium">
+          Email
+        </label>
         <input
+          id="contact-email"
           name="email"
           type="email"
           required
@@ -157,8 +166,11 @@ export function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Message</label>
+        <label htmlFor="contact-message" className="block text-sm font-medium">
+          Message
+        </label>
         <textarea
+          id="contact-message"
           name="message"
           required
           minLength={10}
@@ -177,10 +189,16 @@ export function ContactForm() {
       </button>
 
       {status === 'success' && (
-        <p className="text-sm">✅ Message sent. We’ll get back to you.</p>
+        <p role="status" aria-live="polite" className="text-sm">
+          ✅ Message sent. We’ll get back to you.
+        </p>
       )}
 
-      {status === 'error' && <p className="text-sm">❌ {error}</p>}
+      {status === 'error' && (
+        <p role="alert" aria-live="polite" className="text-sm">
+          ❌ {error}
+        </p>
+      )}
     </form>
   );
 }
