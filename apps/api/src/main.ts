@@ -1,6 +1,6 @@
 import { buildApp } from './app';
-import { closeDb } from './db/client';
 import { env } from './config/env';
+import { closeDb } from './db/client';
 
 const app = await buildApp();
 

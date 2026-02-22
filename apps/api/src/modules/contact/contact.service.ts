@@ -1,5 +1,6 @@
-import type { ContactSuccessResponse } from '@devflow/shared';
 import { randomUUID } from 'node:crypto';
+
+import type { ContactSuccessResponse } from '@devflow/shared';
 
 import { db } from '../../db/client';
 import { contacts } from '../../db/schema';
