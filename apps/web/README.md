@@ -64,3 +64,4 @@ ADMIN_TOKEN=change-me
 ENABLE_ADMIN=false
 ADMIN_GATE=change-me
 NEXT_PUBLIC_ENABLE_ADMIN=false
+```
