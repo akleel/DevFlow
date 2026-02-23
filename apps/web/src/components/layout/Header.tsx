@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { cn } from '../../lib/cn';
+
 import { Container } from './Container';
 
 type LinkItem = { href: string; label: string };
@@ -13,7 +15,7 @@ const links: LinkItem[] = [
 
 function NavLinks({ className }: { className?: string }) {
   return (
-    <nav className={['flex items-center gap-6', className].filter(Boolean).join(' ')}>
+    <nav className={cn('flex items-center gap-6', className)}>
       {links.map((link) => (
         <Link
           key={link.href}

@@ -1,18 +1,31 @@
-﻿/**
- * scripts/apply-production-ready.mjs
+/**
+ * FILE: scripts/apply-production-ready.mjs
  *
  * Applies a small set of production-minded housekeeping changes to the repo.
  * Safe to run multiple times (idempotent).
+ *
+ * NOTE: Save this file as UTF-8 (no BOM).
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = process.cwd();
+/** @returns {string} */
+function resolveRepoRoot() {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  // scripts/apply-production-ready.mjs -> repoRoot
+  return path.resolve(__dirname, '..');
+}
 
+const ROOT = resolveRepoRoot();
+
+/** @param {...string} parts @returns {string} */
 function filePath(...parts) {
   return path.join(ROOT, ...parts);
 }
 
+/** @param {string} p @returns {boolean} */
 function exists(p) {
   try {
     fs.accessSync(p);
@@ -22,93 +35,226 @@ function exists(p) {
   }
 }
 
+/** @param {string} text @returns {'\n' | '\r\n'} */
 function detectEol(text) {
   return text.includes('\r\n') ? '\r\n' : '\n';
 }
 
+/** @param {string} p @returns {{ text: string, eol: '\n' | '\r\n' }} */
 function readText(p) {
   const text = fs.readFileSync(p, 'utf8');
   return { text, eol: detectEol(text) };
 }
 
+/** @param {string} p @param {string} content @param {'\n' | '\r\n'} [eolHint] */
 function writeText(p, content, eolHint = '\n') {
   const normalized = content.replace(/\r?\n/g, eolHint);
+  fs.mkdirSync(path.dirname(p), { recursive: true });
   fs.writeFileSync(p, normalized, 'utf8');
 }
 
+/**
+ * Appends missing lines to a file (preserves existing content + EOL).
+ * @param {string} p
+ * @param {string[]} lines
+ * @returns {boolean} changed
+ */
 function ensureLines(p, lines) {
   const { text, eol } = readText(p);
   const existing = new Set(text.split(/\r?\n/));
   const toAdd = lines.filter((l) => !existing.has(l));
   if (toAdd.length === 0) return false;
 
-  const needsTrailingNewline = !text.endsWith('\n') && !text.endsWith('\r\n');
-  const next = text + (needsTrailingNewline ? eol : '') + toAdd.join(eol) + eol;
+  const hasTrailingNewline = text.endsWith('\n') || text.endsWith('\r\n');
+  const next = text + (hasTrailingNewline ? '' : eol) + toAdd.join(eol) + eol;
 
   writeText(p, next, eol);
   return true;
 }
 
+/**
+ * Creates file if missing.
+ * @param {string} p
+ * @param {string} content
+ * @returns {boolean} created
+ */
 function upsertFile(p, content) {
   if (exists(p)) return false;
-  fs.mkdirSync(path.dirname(p), { recursive: true });
   writeText(p, content, '\n');
   return true;
 }
 
-function updatePackageJson() {
-  const p = filePath('package.json');
-  const raw = fs.readFileSync(p, 'utf8');
-  const pkg = JSON.parse(raw);
-
-  pkg.scripts ??= {};
-
-  pkg.scripts['format'] ??= 'prettier . --write';
-  pkg.scripts['format:check'] = 'prettier . --check';
-  pkg.scripts['postinstall'] = 'npm run build -w packages/shared';
-  pkg.scripts['typecheck'] =
-    'npm run build -w packages/shared && npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared';
-
-  const next = JSON.stringify(pkg, null, 2) + '\n';
-  fs.writeFileSync(p, next, 'utf8');
+/** @param {string} p @param {(text: string) => string} replacer @returns {boolean} */
+function replaceAll(p, replacer) {
+  const { text, eol } = readText(p);
+  const next = replacer(text);
+  if (next === text) return false;
+  writeText(p, next, eol);
   return true;
 }
 
-function insertCiFormatCheck() {
-  const p = filePath('.github', 'workflows', 'ci.yml');
-  if (!exists(p)) return false;
-
-  const { text, eol } = readText(p);
-  if (text.includes('npm run format:check') || text.includes('name: Format check')) {
-    return false;
+function ensureGitAttributes() {
+  const p = filePath('.gitattributes');
+  if (!exists(p)) {
+    const content = [
+      '# Normalize line endings',
+      '* text=auto eol=lf',
+      '',
+      '# Ensure common text formats use LF',
+      '*.sh text eol=lf',
+      '*.mjs text eol=lf',
+      '*.cjs text eol=lf',
+      '*.js text eol=lf',
+      '*.ts text eol=lf',
+      '*.tsx text eol=lf',
+      '*.json text eol=lf',
+      '*.yml text eol=lf',
+      '*.yaml text eol=lf',
+      '*.md text eol=lf',
+      '',
+    ].join('\n');
+    writeText(p, content, '\n');
+    return true;
   }
 
-  const re = /^(\s*)- name:\s*Install\s*\r?\n(\s*)run:\s*npm ci\s*\r?\n/m;
-  const match = text.match(re);
-  if (!match) {
-    throw new Error('Could not find the Install step in .github/workflows/ci.yml');
+  return ensureLines(p, [
+    '# Normalize line endings',
+    '* text=auto eol=lf',
+    '',
+    '# Ensure common text formats use LF',
+    '*.sh text eol=lf',
+    '*.mjs text eol=lf',
+    '*.cjs text eol=lf',
+    '*.js text eol=lf',
+    '*.ts text eol=lf',
+    '*.tsx text eol=lf',
+    '*.json text eol=lf',
+    '*.yml text eol=lf',
+    '*.yaml text eol=lf',
+    '*.md text eol=lf',
+  ]);
+}
+
+function ensureEditorConfig() {
+  const p = filePath('.editorconfig');
+  return upsertFile(
+    p,
+    [
+      'root = true',
+      '',
+      '[*]',
+      'charset = utf-8',
+      'end_of_line = lf',
+      'insert_final_newline = true',
+      'trim_trailing_whitespace = true',
+      'indent_style = space',
+      'indent_size = 2',
+      '',
+      '[*.md]',
+      'trim_trailing_whitespace = false',
+      '',
+    ].join('\n'),
+  );
+}
+
+function ensureEslintIgnore() {
+  const p = filePath('.eslintignore');
+  if (!exists(p)) {
+    return upsertFile(
+      p,
+      ['node_modules', 'dist', '.next', 'out', 'build', 'coverage', '.turbo', ''].join(
+        '\n',
+      ),
+    );
   }
 
-  const itemIndent = match[1];
-  const runIndent = match[2];
+  return ensureLines(p, [
+    'node_modules',
+    'dist',
+    '.next',
+    'out',
+    'build',
+    'coverage',
+    '.turbo',
+  ]);
+}
 
-  const insert =
-    `${itemIndent}- name: Format check${eol}` +
-    `${runIndent}run: npm run format:check${eol}${eol}`;
+function ensureVsCodeSettings() {
+  const p = filePath('.vscode', 'settings.json');
 
-  const next = text.replace(re, (m) => m + insert);
-  writeText(p, next, eol);
-  return true;
+  if (!exists(p)) {
+    const content =
+      JSON.stringify(
+        {
+          'editor.formatOnSave': true,
+          'editor.defaultFormatter': 'esbenp.prettier-vscode',
+          'editor.codeActionsOnSave': {
+            'source.fixAll.eslint': 'explicit',
+          },
+          'files.eol': '\n',
+        },
+        null,
+        2,
+      ) + '\n';
+
+    writeText(p, content, '\n');
+    return true;
+  }
+
+  return replaceAll(p, (text) => {
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      return text;
+    }
+
+    const next = {
+      ...json,
+      'editor.formatOnSave': true,
+      'files.eol': '\n',
+      'editor.codeActionsOnSave': {
+        ...(json['editor.codeActionsOnSave'] ?? {}),
+        'source.fixAll.eslint': 'explicit',
+      },
+    };
+
+    return JSON.stringify(next, null, 2) + '\n';
+  });
 }
 
 function updateGitignore() {
   const p = filePath('.gitignore');
   if (!exists(p)) return false;
-  return ensureLines(p, ['**/.next/**', '**/out/**', '**/dist/**', '**/build/**']);
+
+  return ensureLines(p, [
+    '',
+    '# OS / Editor',
+    '.DS_Store',
+    'Thumbs.db',
+    '.idea',
+    '',
+    '# Env (keep *.example committed)',
+    '.env',
+    '.env.local',
+    '.env.*.local',
+    '',
+    '# Logs',
+    '*.log',
+    '',
+    '# Build',
+    '**/.next/**',
+    '**/out/**',
+    '**/dist/**',
+    '**/build/**',
+    'coverage',
+    '.turbo',
+  ]);
 }
 
 function ensurePrettierIgnore() {
   const p = filePath('.prettierignore');
+
   if (!exists(p)) {
     writeText(
       p,
@@ -127,6 +273,7 @@ function ensurePrettierIgnore() {
     );
     return true;
   }
+
   return ensureLines(p, [
     'node_modules',
     '**/dist',
@@ -137,6 +284,80 @@ function ensurePrettierIgnore() {
     '.turbo',
     '.cache',
   ]);
+}
+
+function updatePackageJson() {
+  const p = filePath('package.json');
+  if (!exists(p)) return false;
+
+  const raw = fs.readFileSync(p, 'utf8');
+  let pkg;
+  try {
+    pkg = JSON.parse(raw);
+  } catch {
+    console.warn('[skip] package.json is not valid JSON');
+    return false;
+  }
+
+  pkg.scripts ??= {};
+
+  /** @param {string} key @param {string} value */
+  function ensureScript(key, value) {
+    if (typeof pkg.scripts[key] === 'string' && pkg.scripts[key].trim().length > 0)
+      return false;
+    pkg.scripts[key] = value;
+    return true;
+  }
+
+  let changed = false;
+
+  changed = ensureScript('format', 'prettier . --write') || changed;
+  changed = ensureScript('format:check', 'prettier . --check') || changed;
+
+  // Keep your intent, but do not overwrite existing scripts.
+  changed = ensureScript('postinstall', 'npm run build -w packages/shared') || changed;
+
+  changed =
+    ensureScript(
+      'typecheck',
+      'npm run build -w packages/shared && npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared',
+    ) || changed;
+
+  changed =
+    ensureScript('housekeeping', 'node scripts/apply-production-ready.mjs') || changed;
+
+  if (!changed) return false;
+
+  fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+  return true;
+}
+
+function insertCiFormatCheck() {
+  const p = filePath('.github', 'workflows', 'ci.yml');
+  if (!exists(p)) return false;
+
+  const { text, eol } = readText(p);
+  if (text.includes('npm run format:check') || text.includes('name: Format check')) {
+    return false;
+  }
+
+  const re = /^(\s*)- name:\s*Install\s*\r?\n(\s*)run:\s*npm ci\s*\r?\n/m;
+  const match = text.match(re);
+  if (!match) {
+    console.warn('[skip] Could not find the Install step in .github/workflows/ci.yml');
+    return false;
+  }
+
+  const itemIndent = match[1];
+  const runIndent = match[2];
+
+  const insert =
+    `${itemIndent}- name: Format check${eol}` +
+    `${runIndent}run: npm run format:check${eol}${eol}`;
+
+  const next = text.replace(re, (m) => m + insert);
+  writeText(p, next, eol);
+  return true;
 }
 
 function addApiReadmeIfMissing() {
@@ -210,45 +431,23 @@ function updateApiRoutesWarn() {
   const { text, eol } = readText(p);
   if (text.includes('admin routes disabled')) return false;
 
-  const re =
-    /if\s*\(\s*env\.ENABLE_ADMIN\s*\)\s*\{\s*\r?\n([\s\S]*?)await\s+app\.register\s*\(\s*adminRoutes\s*,\s*\{\s*prefix:\s*'\/api'\s*\}\s*\)\s*;\s*\r?\n([\s\S]*?)\}\s*/m;
+  const exact =
+    "if (env.ENABLE_ADMIN) {\n    await app.register(adminRoutes, { prefix: '/api' });\n  }\n";
 
-  if (!re.test(text)) {
-    // fallback: only handle the most common exact block
-    const exact =
-      "if (env.ENABLE_ADMIN) {\n    await app.register(adminRoutes, { prefix: '/api' });\n  }\n";
-    if (text.includes(exact)) {
-      const next = text.replace(
-        exact,
-        "if (env.ENABLE_ADMIN) {\n    await app.register(adminRoutes, { prefix: '/api' });\n  } else {\n    app.log.warn('admin routes disabled (set ENABLE_ADMIN=true to enable)');\n  }\n",
-      );
-      writeText(p, next, eol);
-      return true;
-    }
-    throw new Error(
-      'Could not safely locate adminRoutes registration block in apps/api/src/routes/index.ts',
+  if (text.includes(exact)) {
+    const next = text.replace(
+      exact,
+      "if (env.ENABLE_ADMIN) {\n    await app.register(adminRoutes, { prefix: '/api' });\n  } else {\n    app.log.warn('admin routes disabled (set ENABLE_ADMIN=true to enable)');\n  }\n",
     );
+    writeText(p, next, eol);
+    return true;
   }
 
-  const next = text.replace(
-    /if\s*\(\s*env\.ENABLE_ADMIN\s*\)\s*\{\s*\r?\n([\s\S]*?)await\s+app\.register\s*\(\s*adminRoutes\s*,\s*\{\s*prefix:\s*'\/api'\s*\}\s*\)\s*;\s*\r?\n([\s\S]*?)\}\s*/m,
-    (m) => {
-      // Preserve indentation based on the existing block.
-      const indentMatch = m.match(/^(\s*)if/m);
-      const base = indentMatch ? indentMatch[1] : '';
-      const inner = base + '  ';
-      return (
-        `${base}if (env.ENABLE_ADMIN) {${eol}` +
-        `${inner}await app.register(adminRoutes, { prefix: '/api' });${eol}` +
-        `${base}} else {${eol}` +
-        `${inner}app.log.warn('admin routes disabled (set ENABLE_ADMIN=true to enable)');${eol}` +
-        `${base}}${eol}`
-      );
-    },
+  // If the file has drifted, do not hard-fail automation.
+  console.warn(
+    '[skip] Could not safely patch apps/api/src/routes/index.ts (block not found)',
   );
-
-  writeText(p, next, eol);
-  return true;
+  return false;
 }
 
 function addWebImportOrderRule() {
@@ -258,10 +457,31 @@ function addWebImportOrderRule() {
   const { text, eol } = readText(p);
   if (text.includes("'import/order'") || text.includes('"import/order"')) return false;
 
+  let next = text;
+
+  // Ensure importPlugin is imported.
+  if (
+    !next.includes("from 'eslint-plugin-import'") &&
+    !next.includes('from "eslint-plugin-import"')
+  ) {
+    const importBlockMatch = next.match(/^([\s\S]*?)(\r?\n\r?\n)/);
+    if (!importBlockMatch) {
+      console.warn('[skip] Could not locate import block to add eslint-plugin-import');
+      return false;
+    }
+    next = next.replace(
+      importBlockMatch[0],
+      `${importBlockMatch[1]}${eol}import importPlugin from 'eslint-plugin-import';${eol}${eol}`,
+    );
+  }
+
+  // Insert a config object before the closing of defineConfig([...])
   const marker = ']);';
-  const idx = text.lastIndexOf(marker);
-  if (idx === -1)
-    throw new Error("Could not find closing ']);' in apps/web/eslint.config.mjs");
+  const idx = next.lastIndexOf(marker);
+  if (idx === -1) {
+    console.warn("[skip] Could not find closing ']);' in apps/web/eslint.config.mjs");
+    return false;
+  }
 
   const insert =
     `${eol}  {${eol}` +
@@ -277,7 +497,8 @@ function addWebImportOrderRule() {
     `    },${eol}` +
     `  },${eol}`;
 
-  const next = text.slice(0, idx) + insert + text.slice(idx);
+  next = next.slice(0, idx) + insert + next.slice(idx);
+
   writeText(p, next, eol);
   return true;
 }
@@ -285,10 +506,16 @@ function addWebImportOrderRule() {
 function main() {
   const changes = [];
 
+  if (ensureGitAttributes()) changes.push('.gitattributes');
+  if (ensureEditorConfig()) changes.push('.editorconfig');
+  if (ensureEslintIgnore()) changes.push('.eslintignore');
+  if (ensureVsCodeSettings()) changes.push('.vscode/settings.json');
+
   if (updateGitignore()) changes.push('.gitignore');
   if (ensurePrettierIgnore()) changes.push('.prettierignore');
   if (updatePackageJson()) changes.push('package.json');
   if (insertCiFormatCheck()) changes.push('.github/workflows/ci.yml');
+
   if (addApiReadmeIfMissing()) changes.push('apps/api/README.md');
   if (updateApiRoutesWarn()) changes.push('apps/api/src/routes/index.ts');
   if (addWebImportOrderRule()) changes.push('apps/web/eslint.config.mjs');

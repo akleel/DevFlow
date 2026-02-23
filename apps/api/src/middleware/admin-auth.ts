@@ -1,9 +1,10 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { env } from '../config/env';
+import { readHeader } from '../utils/headers';
 
 export async function requireAdmin(req: FastifyRequest, reply: FastifyReply) {
-  const token = (req.headers['x-admin-token'] as string | undefined) ?? '';
+  const token = readHeader(req, 'x-admin-token') ?? '';
 
   if (token !== env.ADMIN_TOKEN) {
     return reply.status(401).send({

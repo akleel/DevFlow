@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { cn } from '../../lib/cn';
+
 import { Container } from './Container';
 
 type Props = {
@@ -13,10 +15,7 @@ type Props = {
 
 export function Section({ id, eyebrow, title, subtitle, children, className }: Props) {
   return (
-    <section
-      id={id}
-      className={['scroll-mt-24 py-14 sm:py-20', className].filter(Boolean).join(' ')}
-    >
+    <section id={id} className={cn('scroll-mt-24 py-14 sm:py-20', className)}>
       <Container>
         {(eyebrow || title || subtitle) && (
           <header className="mb-8 sm:mb-10">
