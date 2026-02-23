@@ -14,13 +14,13 @@ const links: LinkItem[] = [
 function NavLinks({ className }: { className?: string }) {
   return (
     <nav className={['flex items-center gap-6', className].filter(Boolean).join(' ')}>
-      {links.map((l) => (
+      {links.map((link) => (
         <Link
-          key={l.href}
-          href={l.href}
-          className="text-sm font-medium text-white/80 hover:text-white transition"
+          key={link.href}
+          href={link.href}
+          className="text-sm font-medium text-zinc-300 transition hover:text-white"
         >
-          {l.label}
+          {link.label}
         </Link>
       ))}
     </nav>
@@ -30,48 +30,46 @@ function NavLinks({ className }: { className?: string }) {
 export function Header() {
   return (
     <header className="sticky top-0 z-50">
-      {/* Full-width bar */}
-      <div className="border-b border-white/10 bg-black/45 backdrop-blur">
-        {/* Use Container but remove max-width so it reaches “corners” */}
+      <div className="border-b border-white/10 bg-[#070b14]/70 backdrop-blur-xl">
         <Container className="max-w-none px-6 sm:px-8 lg:px-10">
           <div className="flex h-16 items-center justify-between">
-            {/* Left corner: brand */}
-            <Link href="/" className="text-white font-semibold tracking-tight">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-white"
+            >
+              <span className="inline-block h-2 w-2 rounded-full bg-sky-300 shadow-[0_0_14px_rgba(125,211,252,0.75)]" />
               DevFlow
             </Link>
 
-            {/* Right corner group: links + CTA */}
             <div className="flex items-center gap-4">
-              {/* Desktop links sit next to CTA */}
               <NavLinks className="hidden md:flex" />
 
               <Link
                 href="/#contact"
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-white/90 transition"
+                className="rounded-full border border-sky-200/20 bg-sky-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-200"
               >
                 Book a call
               </Link>
 
-              {/* Mobile menu (no JS) */}
               <details className="relative md:hidden">
-                <summary className="cursor-pointer rounded-full border border-white/20 px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition [&::-webkit-details-marker]:hidden">
+                <summary className="cursor-pointer rounded-full border border-white/15 px-3 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/5 [&::-webkit-details-marker]:hidden">
                   Menu
                 </summary>
 
-                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-white/10 bg-black/80 p-2 shadow-lg backdrop-blur">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-white/10 bg-[#0b1220]/95 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl">
                   <div className="flex flex-col">
-                    {links.map((l) => (
+                    {links.map((link) => (
                       <Link
-                        key={l.href}
-                        href={l.href}
-                        className="rounded-md px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition"
+                        key={link.href}
+                        href={link.href}
+                        className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5 hover:text-white"
                       >
-                        {l.label}
+                        {link.label}
                       </Link>
                     ))}
                     <Link
                       href="/#contact"
-                      className="mt-1 rounded-md px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition"
+                      className="mt-1 rounded-lg px-3 py-2 text-sm font-semibold text-sky-200 transition hover:bg-white/5"
                     >
                       Contact
                     </Link>

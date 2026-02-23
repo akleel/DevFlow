@@ -1,5 +1,23 @@
+import Link from 'next/link';
+
 import { ContactForm } from '../components/contact/ContactForm';
 import { Section } from '../components/layout/Section';
+
+const surfaceClass =
+  'rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-zinc-100 shadow-[0_8px_30px_rgba(0,0,0,0.22)] backdrop-blur-sm';
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="mt-4 space-y-2.5 text-sm text-zinc-300">
+      {items.map((item) => (
+        <li key={item} className="flex gap-2.5">
+          <span className="mt-1.5 inline-block h-1.5 w-1.5 flex-none rounded-full bg-sky-300" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function Card({
   title,
@@ -11,38 +29,31 @@ function Card({
   bullets: string[];
 }) {
   return (
-    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
-      <h3 className="text-lg font-semibold tracking-tight text-gray-900">{title}</h3>
-      <p className="mt-2 text-sm text-gray-600">{body}</p>
-      <ul className="mt-4 space-y-2 text-sm text-gray-700">
-        {bullets.map((b) => (
-          <li key={b} className="flex gap-2">
-            <span className="mt-1 inline-block h-1.5 w-1.5 flex-none rounded-full bg-gray-900" />
-            <span>{b}</span>
-          </li>
-        ))}
-      </ul>
+    <div className={surfaceClass}>
+      <h3 className="text-lg font-semibold tracking-tight text-zinc-100">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">{body}</p>
+      <BulletList items={bullets} />
     </div>
   );
 }
 
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
-      <div className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
+    <div className={surfaceClass}>
+      <div className="text-xs font-semibold tracking-[0.16em] text-sky-200/80 uppercase">
         Step {n}
       </div>
-      <div className="mt-2 text-base font-semibold text-gray-900">{title}</div>
-      <p className="mt-2 text-sm text-gray-600">{body}</p>
+      <div className="mt-2 text-base font-semibold text-zinc-100">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">{body}</p>
     </div>
   );
 }
 
 function QA({ q, a }: { q: string; a: string }) {
   return (
-    <div className="rounded-xl border bg-white p-6 text-gray-900 shadow-sm">
-      <div className="text-base font-semibold text-gray-900">{q}</div>
-      <p className="mt-2 text-sm text-gray-600">{a}</p>
+    <div className={surfaceClass}>
+      <div className="text-base font-semibold text-zinc-100">{q}</div>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">{a}</p>
     </div>
   );
 }
@@ -51,14 +62,15 @@ export default function HomePage() {
   return (
     <main id="top">
       {/* Hero */}
-      <section className="border-b">
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <section className="border-b border-white/10">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8">
           <div className="max-w-2xl">
-            <div className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/3 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-sky-200/90 uppercase">
+              <span className="h-1.5 w-1.5 rounded-full bg-sky-300" />
               Consulting • Fullstack • Production-first
             </div>
 
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+            <h1 className="mt-5 text-4xl font-semibold tracking-tight text-zinc-100 sm:text-5xl">
               Websites that convert.
               <br />
               Extreme problems solved.
@@ -66,33 +78,82 @@ export default function HomePage() {
               Components built to last.
             </h1>
 
-            <p className="mt-5 text-base text-gray-600 sm:text-lg">
-              Dewflow builds clean, maintainable web systems with senior discipline:
+            <p className="mt-5 text-base leading-7 text-zinc-400 sm:text-lg">
+              DevFlow builds clean, maintainable web systems with senior discipline:
               strong typing, predictable architecture, and real operational hygiene.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#contact"
-                className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+              <Link
+                href="/#contact"
+                className="rounded-xl border border-sky-200/20 bg-sky-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-200"
               >
                 Book a call
-              </a>
-              <a
-                href="#services"
-                className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              </Link>
+              <Link
+                href="/#services"
+                className="rounded-xl border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/6"
               >
                 See services
-              </a>
+              </Link>
+              <Link
+                href="/engineering"
+                className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/4 hover:text-white"
+              >
+                Engineering notes
+              </Link>
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-4 text-xs text-gray-500">
-              <span className="rounded-full border px-3 py-1">Type-safe fullstack</span>
-              <span className="rounded-full border px-3 py-1">CI gated</span>
-              <span className="rounded-full border px-3 py-1">API-first</span>
-              <span className="rounded-full border px-3 py-1">Fast iteration</span>
+            <div className="mt-10 flex flex-wrap gap-3 text-xs">
+              {['Type-safe fullstack', 'CI gated', 'API-first', 'Fast iteration'].map(
+                (tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-white/10 bg-white/3 px-3 py-1.5 text-zinc-300"
+                  >
+                    {tag}
+                  </span>
+                ),
+              )}
             </div>
           </div>
+
+          <aside className="self-start rounded-2xl border border-white/10 bg-white/3 p-5 shadow-[0_12px_36px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+            <div className="text-xs font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+              Why teams hire
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              {[
+                {
+                  label: 'Architecture',
+                  value: 'Clear boundaries',
+                  note: 'Frontend, API, shared contracts',
+                },
+                {
+                  label: 'Quality',
+                  value: 'Guardrails included',
+                  note: 'Validation, rate limits, CI checks',
+                },
+                {
+                  label: 'Delivery',
+                  value: 'Small strong increments',
+                  note: 'Fast iteration without chaos',
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-white/10 bg-black/20 p-4"
+                >
+                  <div className="text-xs font-medium text-zinc-400">{item.label}</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-100">
+                    {item.value}
+                  </div>
+                  <div className="mt-1 text-xs text-zinc-500">{item.note}</div>
+                </div>
+              ))}
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -140,7 +201,7 @@ export default function HomePage() {
         eyebrow="How we work"
         title="Fast, calm, and predictable"
         subtitle="Short feedback loops, strong boundaries, and a bias toward shipping."
-        className="bg-gray-50"
+        className="border-y border-white/5 bg-white/2"
       >
         <div className="grid gap-4 lg:grid-cols-3">
           <Step
@@ -169,42 +230,36 @@ export default function HomePage() {
         subtitle="We build components that behave the same everywhere — consistent UX and less maintenance."
       >
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border p-6">
-            <h3 className="text-lg font-semibold tracking-tight">Deliverables</h3>
-            <ul className="mt-4 space-y-2 text-sm text-gray-700">
-              {[
+          <div className={surfaceClass}>
+            <h3 className="text-lg font-semibold tracking-tight text-zinc-100">
+              Deliverables
+            </h3>
+            <BulletList
+              items={[
                 'UI primitives (Button, Input, Card…) with predictable styling',
                 'Patterns (forms, error states, loading) that don’t rot',
                 'Shared types/contracts between frontend and API',
                 'Docs and usage examples so teams move faster',
-              ].map((b) => (
-                <li key={b} className="flex gap-2">
-                  <span className="mt-1 inline-block h-1.5 w-1.5 flex-none rounded-full bg-gray-900" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
+              ]}
+            />
           </div>
 
-          <div className="rounded-xl border p-6">
-            <h3 className="text-lg font-semibold tracking-tight">Why it matters</h3>
-            <p className="mt-2 text-sm text-gray-600">
+          <div className={surfaceClass}>
+            <h3 className="text-lg font-semibold tracking-tight text-zinc-100">
+              Why it matters
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
               Great teams don’t move fast because they “code faster.” They move fast
               because the system stays simple.
             </p>
-            <ul className="mt-4 space-y-2 text-sm text-gray-700">
-              {[
+            <BulletList
+              items={[
                 'Fewer UI regressions',
                 'Less duplicated logic',
                 'Easier onboarding',
                 'Cleaner code reviews',
-              ].map((b) => (
-                <li key={b} className="flex gap-2">
-                  <span className="mt-1 inline-block h-1.5 w-1.5 flex-none rounded-full bg-gray-900" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
+              ]}
+            />
           </div>
         </div>
       </Section>
@@ -215,7 +270,7 @@ export default function HomePage() {
         eyebrow="Under the hood"
         title="Built like production"
         subtitle="This site is intentionally engineered to match what strong fullstack teams expect."
-        className="bg-gray-50"
+        className="border-y border-white/5 bg-white/2"
       >
         <div className="grid gap-4 lg:grid-cols-3">
           <Card
@@ -282,7 +337,7 @@ export default function HomePage() {
         title="Tell us what you’re trying to achieve"
         subtitle="The best messages include goal, timeline, constraints, and what “done” looks like."
       >
-        <div className="rounded-xl border p-6">
+        <div className="rounded-2xl border border-white/10 bg-white/3 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.24)] backdrop-blur-sm">
           <ContactForm />
         </div>
       </Section>
