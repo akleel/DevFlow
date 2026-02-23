@@ -12,10 +12,12 @@
     "dev:web": "npm run dev -w apps/web",
     "dev:api": "npm run dev -w apps/api",
     "lint": "npm run lint -w apps/web && npm run lint -w apps/api && npm run lint -w packages/shared",
-    "typecheck": "npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared",
+    "typecheck": "npm run build -w packages/shared && npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared",
     "test": "npm run test -w apps/api",
     "build": "npm run build -w packages/shared && npm run build -w apps/api && npm run build -w apps/web",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "postinstall": "npm run build -w packages/shared"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",
