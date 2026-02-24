@@ -18,9 +18,7 @@ function isAdminContactItem(value: unknown): value is AdminContactItem {
 }
 
 function parseAdminContactsResponse(value: unknown): AdminContactsResponse {
-  if (!isRecord(value)) {
-    return { ok: false, error: 'Invalid response' };
-  }
+  if (!isRecord(value)) return { ok: false, error: 'Invalid response' };
 
   if (value.ok === true) {
     const itemsRaw = value.items;
@@ -46,7 +44,6 @@ function formatDate(iso: string) {
 export default function AdminPage() {
   const enabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
 
-  // Hooks must always be called in the same order on every render.
   const [gate, setGate] = useState<string>('');
   const [items, setItems] = useState<AdminContactItem[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -65,10 +62,7 @@ export default function AdminPage() {
 
     try {
       const res = await fetch('/api/admin/contacts?limit=50', {
-        headers: {
-          Accept: 'application/json',
-          'x-admin-gate': gate,
-        },
+        headers: { Accept: 'application/json', 'x-admin-gate': gate },
         cache: 'no-store',
       });
 

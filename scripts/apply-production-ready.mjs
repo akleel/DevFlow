@@ -53,10 +53,9 @@ function writeText(p, content, eolHint = '\n') {
 }
 
 /**
- * Appends missing lines to a file (preserves existing content + EOL).
  * @param {string} p
  * @param {string[]} lines
- * @returns {boolean} changed
+ * @returns {boolean}
  */
 function ensureLines(p, lines) {
   const { text, eol } = readText(p);
@@ -72,10 +71,9 @@ function ensureLines(p, lines) {
 }
 
 /**
- * Creates file if missing.
  * @param {string} p
  * @param {string} content
- * @returns {boolean} created
+ * @returns {boolean}
  */
 function upsertFile(p, content) {
   if (exists(p)) return false;
@@ -156,28 +154,6 @@ function ensureEditorConfig() {
   );
 }
 
-function ensureEslintIgnore() {
-  const p = filePath('.eslintignore');
-  if (!exists(p)) {
-    return upsertFile(
-      p,
-      ['node_modules', 'dist', '.next', 'out', 'build', 'coverage', '.turbo', ''].join(
-        '\n',
-      ),
-    );
-  }
-
-  return ensureLines(p, [
-    'node_modules',
-    'dist',
-    '.next',
-    'out',
-    'build',
-    'coverage',
-    '.turbo',
-  ]);
-}
-
 function ensureVsCodeSettings() {
   const p = filePath('.vscode', 'settings.json');
 
@@ -187,9 +163,7 @@ function ensureVsCodeSettings() {
         {
           'editor.formatOnSave': true,
           'editor.defaultFormatter': 'esbenp.prettier-vscode',
-          'editor.codeActionsOnSave': {
-            'source.fixAll.eslint': 'explicit',
-          },
+          'editor.codeActionsOnSave': { 'source.fixAll.eslint': 'explicit' },
           'files.eol': '\n',
         },
         null,
@@ -313,7 +287,6 @@ function updatePackageJson() {
 
   changed = ensureScript('format', 'prettier . --write') || changed;
   changed = ensureScript('format:check', 'prettier . --check') || changed;
-
   changed = ensureScript('postinstall', 'npm run build -w packages/shared') || changed;
 
   changed =
@@ -440,7 +413,6 @@ function main() {
 
   if (ensureGitAttributes()) changes.push('.gitattributes');
   if (ensureEditorConfig()) changes.push('.editorconfig');
-  if (ensureEslintIgnore()) changes.push('.eslintignore');
   if (ensureVsCodeSettings()) changes.push('.vscode/settings.json');
 
   if (updateGitignore()) changes.push('.gitignore');
