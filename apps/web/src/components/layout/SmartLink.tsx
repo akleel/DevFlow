@@ -13,11 +13,7 @@ type Props = {
 
 function isModifiedClick(event: MouseEvent<HTMLElement>): boolean {
   return (
-    event.button !== 0 ||
-    event.metaKey ||
-    event.altKey ||
-    event.ctrlKey ||
-    event.shiftKey
+    event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey
   );
 }
 
