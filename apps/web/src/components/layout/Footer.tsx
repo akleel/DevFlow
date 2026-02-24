@@ -1,6 +1,6 @@
-import Link from 'next/link';
-
+// apps/web/src/components/layout/Footer.tsx
 import { Container } from './Container';
+import { SmartLink } from './SmartLink';
 
 export function Footer() {
   return (
@@ -15,18 +15,24 @@ export function Footer() {
             aria-label="Footer navigation"
             className="flex flex-wrap items-center gap-4 text-sm sm:justify-end"
           >
-            <Link className="text-zinc-300 transition hover:text-white" href="/#services">
+            <SmartLink
+              className="text-zinc-300 transition hover:text-white"
+              href="/#services"
+            >
               Services
-            </Link>
-            <Link
+            </SmartLink>
+            <SmartLink
               className="text-zinc-300 transition hover:text-white"
               href="/engineering"
             >
               Engineering
-            </Link>
-            <Link className="text-zinc-300 transition hover:text-white" href="/#contact">
+            </SmartLink>
+            <SmartLink
+              className="text-zinc-300 transition hover:text-white"
+              href="/#contact"
+            >
               Contact
-            </Link>
+            </SmartLink>
           </nav>
         </div>
       </Container>
