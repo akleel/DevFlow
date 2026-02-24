@@ -7,9 +7,23 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
 
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'coverage/**',
+    '.turbo/**',
+    'next-env.d.ts',
+  ]),
 
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
+  },
+
+  {
+    files: ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'],
     plugins: { import: importPlugin },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',

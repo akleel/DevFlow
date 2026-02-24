@@ -14,7 +14,6 @@ import { fileURLToPath } from 'node:url';
 function resolveRepoRoot() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  // scripts/apply-production-ready.mjs -> repoRoot
   return path.resolve(__dirname, '..');
 }
 
@@ -303,8 +302,9 @@ function updatePackageJson() {
 
   /** @param {string} key @param {string} value */
   function ensureScript(key, value) {
-    if (typeof pkg.scripts[key] === 'string' && pkg.scripts[key].trim().length > 0)
+    if (typeof pkg.scripts[key] === 'string' && pkg.scripts[key].trim().length > 0) {
       return false;
+    }
     pkg.scripts[key] = value;
     return true;
   }
@@ -314,7 +314,6 @@ function updatePackageJson() {
   changed = ensureScript('format', 'prettier . --write') || changed;
   changed = ensureScript('format:check', 'prettier . --check') || changed;
 
-  // Keep your intent, but do not overwrite existing scripts.
   changed = ensureScript('postinstall', 'npm run build -w packages/shared') || changed;
 
   changed =
@@ -360,70 +359,6 @@ function insertCiFormatCheck() {
   return true;
 }
 
-function addApiReadmeIfMissing() {
-  const p = filePath('apps', 'api', 'README.md');
-  return upsertFile(
-    p,
-    `# DevFlow API (\`apps/api\`)
-
-Backend for **DevFlow** — a small but production-minded Fastify service that demonstrates:
-
-- **Route modules** (contact + optional admin endpoints)
-- **Validation at the edge** (Zod)
-- **Rate limiting** (\`@fastify/rate-limit\`)
-- **Request IDs** propagated end-to-end
-- **SQLite via Drizzle ORM** (simple, portable, easy to demo)
-
-## Endpoints
-
-- \`GET /health\` — health check
-- \`POST /api/contact\` — contact form submission
-- \`GET /api/admin/contacts?limit=50\` — list recent submissions (dev-only)
-
-## Environment variables
-
-Create \`apps/api/.env\` from \`apps/api/.env.example\`.
-
-Required:
-
-- \`WEB_ORIGIN\` — allowed CORS origin for the web app
-- \`ADMIN_TOKEN\` — static admin token (dev-only)
-- \`DATABASE_URL\` — SQLite file URL (\`file:./storage/devflow.db\`)
-- \`PORT\` — server port (default 3001)
-
-Optional:
-
-- \`ENABLE_ADMIN=true\` — enables \`/api/admin/*\` (dev-only)
-- \`TRUST_PROXY=none|private|all\` — controls whether forwarded IP headers are trusted
-
-## Development
-
-From repo root:
-
-\`\`\`bash
-npm run dev:api
-\`\`\`
-
-## Database
-
-Migrations are managed with Drizzle:
-
-\`\`\`bash
-npm run db:generate -w apps/api
-npm run db:migrate -w apps/api
-\`\`\`
-
-## Tests
-
-\`\`\`bash
-npm test -w apps/api
-\`\`\`
-
-Tests use Fastify's \`app.inject()\` with Node's built-in test runner.
-`,
-  );
-}
-
 function updateApiRoutesWarn() {
   const p = filePath('apps', 'api', 'src', 'routes', 'index.ts');
   if (!exists(p)) return false;
@@ -443,7 +378,6 @@ function updateApiRoutesWarn() {
     return true;
   }
 
-  // If the file has drifted, do not hard-fail automation.
   console.warn(
     '[skip] Could not safely patch apps/api/src/routes/index.ts (block not found)',
   );
@@ -459,7 +393,6 @@ function addWebImportOrderRule() {
 
   let next = text;
 
-  // Ensure importPlugin is imported.
   if (
     !next.includes("from 'eslint-plugin-import'") &&
     !next.includes('from "eslint-plugin-import"')
@@ -475,7 +408,6 @@ function addWebImportOrderRule() {
     );
   }
 
-  // Insert a config object before the closing of defineConfig([...])
   const marker = ']);';
   const idx = next.lastIndexOf(marker);
   if (idx === -1) {
@@ -516,7 +448,6 @@ function main() {
   if (updatePackageJson()) changes.push('package.json');
   if (insertCiFormatCheck()) changes.push('.github/workflows/ci.yml');
 
-  if (addApiReadmeIfMissing()) changes.push('apps/api/README.md');
   if (updateApiRoutesWarn()) changes.push('apps/api/src/routes/index.ts');
   if (addWebImportOrderRule()) changes.push('apps/web/eslint.config.mjs');
 
