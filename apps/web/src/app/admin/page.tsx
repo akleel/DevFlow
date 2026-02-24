@@ -3,9 +3,7 @@
 import type { AdminContactItem, AdminContactsResponse } from '@devflow/shared';
 import { useEffect, useState } from 'react';
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
+import { isRecord } from '../../lib/guards';
 
 function isAdminContactItem(value: unknown): value is AdminContactItem {
   if (!isRecord(value)) return false;
@@ -20,21 +18,17 @@ function isAdminContactItem(value: unknown): value is AdminContactItem {
 }
 
 function parseAdminContactsResponse(value: unknown): AdminContactsResponse {
-  if (!isRecord(value)) {
-    return { ok: false, error: 'Invalid response' };
-  }
+  if (!isRecord(value)) return { ok: false, error: 'Invalid response' };
 
   if (value.ok === true) {
     const itemsRaw = value.items;
     const items = Array.isArray(itemsRaw) ? itemsRaw.filter(isAdminContactItem) : [];
-
     return { ok: true, items };
   }
 
   if (value.ok === false) {
     const error = typeof value.error === 'string' ? value.error : 'Request failed';
     const requestId = typeof value.requestId === 'string' ? value.requestId : undefined;
-
     return { ok: false, error, requestId };
   }
 
@@ -50,7 +44,6 @@ function formatDate(iso: string) {
 export default function AdminPage() {
   const enabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === 'true';
 
-  // Hooks must always be called in the same order on every render.
   const [gate, setGate] = useState<string>('');
   const [items, setItems] = useState<AdminContactItem[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -69,14 +62,11 @@ export default function AdminPage() {
 
     try {
       const res = await fetch('/api/admin/contacts?limit=50', {
-        headers: {
-          Accept: 'application/json',
-          'x-admin-gate': gate,
-        },
+        headers: { Accept: 'application/json', 'x-admin-gate': gate },
         cache: 'no-store',
       });
 
-      const raw = (await res.json().catch(() => ({}))) as unknown;
+      const raw: unknown = await res.json().catch(() => ({}));
       const data = parseAdminContactsResponse(raw);
 
       if (!res.ok || data.ok === false) {

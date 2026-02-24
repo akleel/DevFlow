@@ -3,16 +3,14 @@
 import type { ContactRequest } from '@devflow/shared';
 import { useEffect, useRef, useState } from 'react';
 
+import { isRecord } from '../../lib/guards';
+
 type Status = 'idle' | 'sending' | 'success' | 'error';
 
 type ErrorPayload = {
   error?: string;
   requestId?: string;
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
 
 function readErrorPayload(value: unknown): ErrorPayload {
   if (!isRecord(value)) return {};
@@ -77,7 +75,7 @@ export function ContactForm() {
         body: JSON.stringify(payload),
       });
 
-      const raw = (await res.json().catch(() => ({}))) as unknown;
+      const raw: unknown = await res.json().catch(() => ({}));
       const errPayload = readErrorPayload(raw);
 
       if (!res.ok) {

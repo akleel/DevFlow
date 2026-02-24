@@ -1,7 +1,0 @@
-﻿node_modules
-dist
-.next
-coverage
-eslint.config.cjs
-.prettierrc.cjs
-packages/config/**
