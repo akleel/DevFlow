@@ -1,6 +1,8 @@
 // apps/web/src/components/layout/Header.tsx
 import { cn } from '../../lib/cn';
 
+import { cn } from '../../lib/cn';
+
 import { Container } from './Container';
 import { SmartLink } from './SmartLink';
 

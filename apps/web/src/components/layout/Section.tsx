@@ -1,4 +1,3 @@
-// apps/web/src/components/layout/Section.tsx
 import type { ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
