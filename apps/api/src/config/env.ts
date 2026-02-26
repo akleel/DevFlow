@@ -24,7 +24,7 @@ function parseEnvBoolean(value: unknown): boolean | undefined {
 }
 
 const EnvSchema = z.object({
-  NODE_ENV: z.string().default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z
     .preprocess(
       (v) => (typeof v === 'string' ? Number(v) : v),
@@ -33,7 +33,10 @@ const EnvSchema = z.object({
     .default(3001),
 
   WEB_ORIGIN: z.string().url(),
-  ADMIN_TOKEN: z.string().min(1),
+
+  // Only required if ENABLE_ADMIN=true (validated in loadEnv()).
+  ADMIN_TOKEN: z.string().default(''),
+
   DATABASE_URL: z.string().startsWith('file:'),
 
   // Dev-only admin panel toggle. Keep false in production unless you have real auth.
@@ -61,7 +64,15 @@ function loadEnv(): Env {
     throw new Error(`Invalid environment configuration: ${message}`);
   }
 
-  return parsed.data;
+  const env = parsed.data;
+
+  if (env.ENABLE_ADMIN && env.ADMIN_TOKEN.trim() === '') {
+    throw new Error(
+      'Invalid environment configuration: ADMIN_TOKEN is required when ENABLE_ADMIN=true',
+    );
+  }
+
+  return env;
 }
 
 export const env = loadEnv();
