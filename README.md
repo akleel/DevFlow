@@ -37,3 +37,7 @@ Production-minded consulting/portfolio site + fullstack reference implementation
 ```bash
 npm ci
 ```
+
+## Licence
+- MIT
+
