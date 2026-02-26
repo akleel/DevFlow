@@ -1,3 +1,4 @@
+import { safeLimit } from '@devflow/shared';
 import { NextResponse } from 'next/server';
 
 import {
@@ -8,16 +9,9 @@ import {
 } from '../../_lib/proxy';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const FORWARDED_HEADERS = ['x-request-id'] as const;
-
-function safeLimit(value: string | null): number {
-  const n = Number(value);
-
-  if (!Number.isFinite(n)) return 20;
-
-  return Math.min(100, Math.max(1, Math.floor(n)));
-}
 
 function buildUpstreamUrl(apiUrl: string, limit: number): string | null {
   try {
@@ -97,10 +91,10 @@ export async function GET(req: Request) {
     );
   }
 
-  const data = (await upstream.json().catch(() => ({
+  const data: unknown = await upstream.json().catch(() => ({
     ok: false,
     error: 'Invalid upstream response',
-  }))) as unknown;
+  }));
 
   const res = NextResponse.json(data, { status: upstream.status });
   forwardSelectedHeaders(upstream, res, FORWARDED_HEADERS);

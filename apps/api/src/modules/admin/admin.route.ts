@@ -1,4 +1,4 @@
-import type { AdminContactsSuccessResponse } from '@devflow/shared';
+import { safeLimit, type AdminContactsSuccessResponse } from '@devflow/shared';
 import { desc } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
@@ -9,12 +9,6 @@ import { requireAdmin } from '../../middleware/admin-auth';
 type AdminContactsQuery = {
   limit?: string;
 };
-
-function safeLimit(value: unknown) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 20;
-  return Math.min(100, Math.max(1, Math.floor(n)));
-}
 
 export async function adminRoutes(app: FastifyInstance) {
   app.get<{ Querystring: AdminContactsQuery }>(
