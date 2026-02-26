@@ -34,10 +34,12 @@ Production-minded consulting/portfolio site + fullstack reference implementation
 
 ### 1) Install deps
 
+## Licence
+- MIT
+  
 ```bash
 npm ci
 ```
 
-## Licence
-- MIT
+
 
