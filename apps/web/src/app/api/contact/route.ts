@@ -47,7 +47,10 @@ export async function POST(req: Request) {
 
   const len = readContentLength(req);
   if (len !== null && len > MAX_BODY_BYTES) {
-    return NextResponse.json({ ok: false, error: 'Request body too large' }, { status: 413 });
+    return NextResponse.json(
+      { ok: false, error: 'Request body too large' },
+      { status: 413 },
+    );
   }
 
   const body: unknown = await req.json().catch(() => null);
