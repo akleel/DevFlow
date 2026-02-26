@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { ContactForm } from '../components/contact/ContactForm';
 import { Section } from '../components/layout/Section';
 
@@ -83,28 +81,7 @@ export default function HomePage() {
               strong typing, predictable architecture, and real operational hygiene.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/#contact"
-                className="rounded-xl border border-sky-200/20 bg-sky-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-200"
-              >
-                Book a call
-              </Link>
-              <Link
-                href="/#services"
-                className="rounded-xl border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/6"
-              >
-                See services
-              </Link>
-              <Link
-                href="/engineering"
-                className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/4 hover:text-white"
-              >
-                Engineering notes
-              </Link>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-3 text-xs">
+            <div className="mt-5 flex flex-wrap gap-3 text-sm">
               {['Type-safe fullstack', 'CI gated', 'API-first', 'Fast iteration'].map(
                 (tag) => (
                   <span
