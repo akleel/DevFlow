@@ -24,7 +24,7 @@
     "dev:shared": "npm run dev -w packages/shared"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.3",
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
